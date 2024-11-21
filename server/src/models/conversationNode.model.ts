@@ -1,4 +1,4 @@
-import mongoose, { Schema, Document, model } from "mongoose";
+import { Schema, model } from "mongoose";
 import { ChatbotNodeDto } from "../dtos/conversation.dto";
 
 export interface ChatbotNode extends ChatbotNodeDto {}
