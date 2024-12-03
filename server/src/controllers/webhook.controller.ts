@@ -3,7 +3,7 @@ import * as accountService from "../services/account.service";
 
 export const handleAccountValidation = async (req: Request, res: Response) => {
   try {
-    const { sessionId, message, context } = req.body;
+    const { context } = req.body;
     const { accountNumber, accountName } = context.tempData;
 
     const isValid = await accountService.validateAccount(

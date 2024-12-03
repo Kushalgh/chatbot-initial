@@ -5,7 +5,10 @@ import { v4 as uuidv4 } from "uuid";
 import { StartChatResponseDto, SendMessageRequestDto } from "../dtos/chat.dto";
 import { callWebhook } from "../services/webhook.service";
 
-export const startChat = async (req: Request, res: Response) => {
+export const startChat: RequestHandler = async (
+  req: Request,
+  res: Response
+) => {
   try {
     const sessionId = uuidv4();
     const rootNode = await DecisionTreeNode.findOne({ parentId: null });
@@ -28,11 +31,14 @@ export const startChat = async (req: Request, res: Response) => {
         tempData: {},
       },
     });
+
     await newChat.save();
+
     const response: StartChatResponseDto = {
       sessionId,
       message: newChat.messages[0],
     };
+
     res.status(201).json(response);
   } catch (error) {
     res.status(500).json({ error: (error as Error).message });
@@ -45,6 +51,7 @@ export const sendMessage: RequestHandler<SendMessageRequestDto> = async (
 ) => {
   try {
     const { sessionId, message, nextNodeId } = req.body;
+
     const chat = await Chat.findOne({ sessionId });
 
     if (!chat) {
@@ -52,9 +59,7 @@ export const sendMessage: RequestHandler<SendMessageRequestDto> = async (
       return;
     }
 
-    const currentNode = await DecisionTreeNode.findOne({
-      id: nextNodeId,
-    });
+    const currentNode = await DecisionTreeNode.findOne({ id: nextNodeId });
 
     if (!currentNode) {
       res.status(500).json({ error: "Current node not found" });
@@ -72,9 +77,7 @@ export const sendMessage: RequestHandler<SendMessageRequestDto> = async (
           context: chat.context,
         });
 
-        if (webhookResponse.message) {
-          botResponse = webhookResponse.message;
-        }
+        if (webhookResponse.message) botResponse = webhookResponse.message;
 
         if (webhookResponse.context) {
           chat.context = { ...chat.context, ...webhookResponse.context };
@@ -88,6 +91,7 @@ export const sendMessage: RequestHandler<SendMessageRequestDto> = async (
 
     chat.messages.push({ text: message, isUser: true });
     chat.messages.push({ text: botResponse, isUser: false });
+
     chat.context.currentNodeId = nextNodeId;
 
     await chat.save();
@@ -98,7 +102,7 @@ export const sendMessage: RequestHandler<SendMessageRequestDto> = async (
       parentId: currentNode.parentId,
     };
 
-    if (webhookResponse && webhookResponse.nextNodeId) {
+    if (webhookResponse?.nextNodeId) {
       response.nextNodeId = webhookResponse.nextNodeId;
     }
 

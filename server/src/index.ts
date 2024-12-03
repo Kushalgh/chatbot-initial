@@ -5,6 +5,7 @@ import dotenv from "dotenv";
 import chatRoutes from "./routes/chat.routes";
 import decisionTreeRoutes from "./routes/decision-tree.routes";
 import webhookRoutes from "./routes/webhook.routes";
+import typeRoutes from "./routes/type.routes";
 
 dotenv.config();
 
@@ -21,6 +22,7 @@ mongoose
 app.use("/api/chat", chatRoutes);
 app.use("/api/decision-tree", decisionTreeRoutes);
 app.use("/api/webhook", webhookRoutes);
+app.use("/api/", typeRoutes);
 
 app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
   console.error(err.stack);
